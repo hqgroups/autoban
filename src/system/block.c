@@ -77,9 +77,10 @@ void block_ip(AppConfig *config, const char *ip, const char *server_name, int is
     int window = config->ban_time_window > 0 ? config->ban_time_window : 86400;
     int offense_count = ban_record_and_get_count(ip, window);
 
-    if (offense_count < (config->min_ban_threshold > 0 ? config->min_ban_threshold : 1)) {
-        printf("[AutoBan] IP %s vi phạm lần %d. Chờ đạt ngưỡng %d để chặn.\n", ip, offense_count,
-               config->min_ban_threshold);
+    int threshold = get_min_ban_threshold_for_site(config, server_name);
+    if (offense_count < (threshold > 0 ? threshold : 1)) {
+        printf("[AutoBan] IP %s vi phạm lần %d. Chờ đạt ngưỡng %d để chặn (Site: %s).\n", ip,
+               offense_count, threshold, server_name);
         return;
     }
 

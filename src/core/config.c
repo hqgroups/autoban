@@ -195,6 +195,8 @@ static void handle_site_block_cmd_v6(SiteConfig *config, const char *server_name
 
 static const SiteConfigHandler site_handlers[] = {
     {"ban_time", TYPE_INT, offsetof(SiteConfig, ban_time_seconds), 0, NULL},
+    {"min_ban_threshold", TYPE_INT, offsetof(SiteConfig, min_ban_threshold), 0, NULL},
+    {"nginx_rate", TYPE_STRING, offsetof(SiteConfig, nginx_rate), 64, NULL},
     {"block_cmd", TYPE_CUSTOM, 0, 0, handle_site_block_cmd},
     {"block_cmd_v6", TYPE_CUSTOM, 0, 0, handle_site_block_cmd_v6},
     {NULL, 0, 0, 0, NULL}};
@@ -315,6 +317,8 @@ static void parse_site_config(AppConfig *config, const char *server_name, const 
         strncpy(config->sites[site_idx].server_name, server_name, MAX_STRING - 1);
         config->sites[site_idx].server_name[MAX_STRING - 1] = '\0';
         config->sites[site_idx].ban_time_seconds = config->default_ban_time;
+        config->sites[site_idx].min_ban_threshold = config->min_ban_threshold; // Kế thừa từ global mặc định
+        config->sites[site_idx].nginx_rate[0] = '\0';
         config->sites[site_idx].block_cmd[0] = '\0';
         config->sites[site_idx].block_cmd_v6[0] = '\0';
     }
@@ -494,6 +498,15 @@ const char *get_block_cmd_for_site(AppConfig *config, const char *server_name) {
         }
     }
     return config->block_cmd;
+}
+
+int get_min_ban_threshold_for_site(AppConfig *config, const char *server_name) {
+    for (int i = 0; i < config->site_count; i++) {
+        if (strcmp(config->sites[i].server_name, server_name) == 0) {
+            return config->sites[i].min_ban_threshold;
+        }
+    }
+    return config->min_ban_threshold;
 }
 
 const char *get_block_cmd_v6_for_site(AppConfig *config, const char *server_name) {

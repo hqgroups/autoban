@@ -6,6 +6,7 @@
 #include "control_socket.h"
 #include "ipset.h"
 #include "journal.h"
+#include "nginx_sync.h"
 #include "queue.h"
 #include "redis_sync.h"
 #include "worker.h"
@@ -49,6 +50,7 @@ static void handle_config_reload(const char *config_file) {
 
     AppConfig *new_config = malloc(sizeof(AppConfig));
     if (new_config && load_config(config_file, new_config) == 0) {
+        nginx_sync_generate_config(new_config); // Generate Nginx config for the new config
         pthread_mutex_lock(&config_mutex);
         AppConfig *old_config = config;
         config = new_config;
@@ -114,6 +116,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Cảnh báo: Lỗi khi đọc file config %s. Hệ thống chạy với mặc định.\n",
                 config_file);
     }
+    nginx_sync_generate_config(config);
 
     int cache_sz = config->cache_size > 0 ? config->cache_size : 256;
     if (cache_init(cache_sz) != 0) {

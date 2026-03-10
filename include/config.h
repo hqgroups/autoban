@@ -15,8 +15,10 @@
 typedef struct {
     char server_name[MAX_STRING];
     int ban_time_seconds;
-    char block_cmd[MAX_STRING];    // Biểu thức đè nếu tồn tại
-    char block_cmd_v6[MAX_STRING]; // Biểu thức đè cho IPv6
+    int min_ban_threshold;
+    char nginx_rate[64];           // Ví dụ: 10r/s hoặc 50r/m
+    char block_cmd[MAX_STRING];
+    char block_cmd_v6[MAX_STRING];
 } SiteConfig;
 
 typedef struct {
@@ -83,6 +85,9 @@ int get_ban_time_for_site(AppConfig *config, const char *server_name);
 // Lấy Block CMD Override tuỳ chọn.
 const char *get_block_cmd_for_site(AppConfig *config, const char *server_name);
 const char *get_block_cmd_v6_for_site(AppConfig *config, const char *server_name);
+
+// Lấy ngưỡng vi phạm cho site
+int get_min_ban_threshold_for_site(AppConfig *config, const char *server_name);
 
 // Kiểm tra IP có trong whitelist không (Hỗ trợ theo Subnet O(N))
 int is_whitelisted(AppConfig *config, const char *ip);

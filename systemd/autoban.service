@@ -5,10 +5,7 @@ After=network.target systemd-journald.service nginx.service
 [Service]
 Type=notify
 NotifyAccess=main
-# Khởi tạo user nếu chưa có
-ExecStartPre=+/usr/bin/bash -c "id autoban >/dev/null 2>&1 || useradd -r -s /bin/false autoban"
-ExecStartPre=+/usr/bin/chown autoban:autoban /etc/autoban/autoban.conf
-
+# Service logic
 ExecStart=/usr/local/bin/autoban /etc/autoban/autoban.conf
 Restart=always
 RestartSec=5
