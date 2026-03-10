@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  autoban-test:
+    build: .
+    container_name: autoban-test
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - .:/app # Mount source code for easy live-editing
+    ports:
+      - "8080:80"
+    command: /start.sh

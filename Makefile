@@ -44,3 +44,26 @@ test: src/core/ban_hash.o src/core/config.o src/system/ipset.o src/core/queue.o 
 	$(CC) $(CFLAGS) -o tests/run_test_config tests/test_config.c src/core/config.o $(LDFLAGS)
 	./tests/run_test_ban_hash
 	./tests/run_test_config
+
+# ─── Code Quality Targets ─────────────────────────────────────────────────────
+ALL_SRCS := $(shell find src -name '*.c') $(shell find include -name '*.h')
+
+# Apply clang-format in-place to all source and header files
+format:
+	@which clang-format > /dev/null 2>&1 || (echo "Install: apt install clang-format"; exit 1)
+	clang-format -i --style=file $(ALL_SRCS)
+	@echo "[format] Done — all files formatted."
+
+# Run clang-tidy static analysis (read-only, no fixes)
+tidy:
+	@which clang-tidy > /dev/null 2>&1 || (echo "Install: apt install clang-tidy"; exit 1)
+	clang-tidy $(SRC) -- $(CFLAGS) 2>&1 | tee /tmp/autoban-tidy.log
+	@echo "[tidy] Report saved to /tmp/autoban-tidy.log"
+
+# Run clang-tidy and auto-apply safe fixes
+tidy-fix:
+	@which clang-tidy > /dev/null 2>&1 || (echo "Install: apt install clang-tidy"; exit 1)
+	clang-tidy --fix --fix-errors $(SRC) -- $(CFLAGS)
+	@echo "[tidy-fix] Done."
+
+.PHONY: all clean install test format tidy tidy-fix

@@ -1,0 +1,36 @@
+# AutoBan clang-tidy configuration
+# Enforces security, correctness, and readability checks
+---
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  cert-*,
+  performance-*,
+  readability-*,
+  portability-*,
+  misc-*,
+  -readability-magic-numbers,
+  -cert-dcl03-c,
+  -misc-static-assert,
+  -readability-identifier-length,
+  -bugprone-easily-swappable-parameters,
+  -readability-function-cognitive-complexity
+
+WarningsAsErrors: ""
+
+HeaderFilterRegex: "include/.*\\.h$"
+
+CheckOptions:
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: "1"
+  - key: readability-function-size.LineThreshold
+    value: "80"
+  - key: readability-function-size.StatementThreshold
+    value: "100"
+  - key: readability-function-size.BranchThreshold
+    value: "20"
+  - key: bugprone-assert-side-effect.AssertMacros
+    value: "assert"
+  - key: cert-err33-c.CheckedFunctions
+    value: "::fopen;::fclose;::malloc;::calloc;::realloc;::pthread_mutex_lock;::pthread_mutex_unlock"
