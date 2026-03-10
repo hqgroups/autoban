@@ -1,0 +1,32 @@
+[Unit]
+Description=AutoBan Service (IP Blocker via Journald and Nginx Rate limit)
+After=network.target systemd-journald.service nginx.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+# Khởi tạo user nếu chưa có
+ExecStartPre=+/usr/bin/bash -c "id autoban >/dev/null 2>&1 || useradd -r -s /bin/false autoban"
+ExecStartPre=+/usr/bin/chown autoban:autoban /etc/autoban/autoban.conf
+
+ExecStart=/usr/local/bin/autoban /etc/autoban/autoban.conf
+Restart=always
+RestartSec=5
+
+# Đảm bảo có thư mục Runtime để Unix Socket bind thành công dưới quyền autoban
+RuntimeDirectory=autoban
+RuntimeDirectoryMode=0700
+
+# Sandbox & Privilege Escapement Prevention
+User=autoban
+AmbientCapabilities=CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_ADMIN
+NoNewPrivileges=yes
+
+# Yêu cầu service đọc syslog
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=autoban_daemon
+
+[Install]
+WantedBy=multi-user.target
